@@ -41,7 +41,7 @@ public class ForbiddenReturnTypesForClassesTest {
     }
 
     @Test
-    public void doNotCreateBeansInApplicationClass() {
+    public void doNotReturnBooleans() {
         no(methods())
                 .that(are(declaredIn(SomeRepository.class)))
                 .should(notReturn(booleanClass()))
