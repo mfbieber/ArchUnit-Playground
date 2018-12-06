@@ -1,0 +1,11 @@
+@startuml
+[Some other Clazz] <<org.haffson.archUnitPlayground>>
+[Some Controller] <<..controller..>>
+[Some Repository] <<..repository..>>
+[Some Persistence] <<..persistence..>>
+
+
+[Some Controller] --> [Some Repository]
+
+[Some Repository] --> [Some Persistence]
+@enduml

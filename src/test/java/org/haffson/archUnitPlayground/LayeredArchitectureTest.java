@@ -9,7 +9,7 @@ import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 public class LayeredArchitectureTest {
 
     private final JavaClasses allClasses = new ClassFileImporter()
-            .importPackagesOf(ArchUnitPlaygroundApplication.class);
+            .importPackages("org.haffson.archUnitPlayground");
 
     @Test
     public void controllersShouldNotAccessPersistence() {

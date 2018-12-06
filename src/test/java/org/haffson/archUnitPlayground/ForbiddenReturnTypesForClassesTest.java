@@ -6,6 +6,7 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.properties.HasReturnType;
+import com.tngtech.archunit.core.domain.properties.HasType;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.AbstractClassesTransformer;
 import com.tngtech.archunit.lang.ArchCondition;
@@ -14,6 +15,7 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
 import com.tngtech.archunit.lang.conditions.ArchPredicates;
 import org.haffson.archUnitPlayground.repository.SomeRepository;
 import org.junit.jupiter.api.Test;
+import sun.security.krb5.internal.crypto.Des;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -28,23 +30,34 @@ import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.no;
 import static org.haffson.archUnitPlayground.ForbiddenReturnTypesForClassesTest.MethodCondition.notReturn;
 import static org.haffson.archUnitPlayground.ForbiddenReturnTypesForClassesTest.MethodTransformer.methods;
+import static org.hamcrest.core.IsNull.nullValue;
 
 
 public class ForbiddenReturnTypesForClassesTest {
 
     private final JavaClasses allClasses = new ClassFileImporter()
-        .importPackagesOf(ArchUnitPlaygroundApplication.class);
+            .importPackages("org.haffson.archUnitPlayground");
 
     @Nonnull
     private static DescribedPredicate<HasReturnType> booleanClass() {
         return  returnType(Boolean.class);
     }
 
+    @Nonnull
+    private static DescribedPredicate<JavaClass> isInterface() {
+        return new DescribedPredicate<JavaClass>("is an interface") {
+            @Override
+            public boolean apply(JavaClass input) {
+                return input.isInterface();
+            }
+        };
+    }
+
     @Test
     public void doNotReturnBooleans() {
         no(methods())
                 .that(are(declaredIn(SomeRepository.class)))
-                .should(notReturn(booleanClass()))
+                .should(notReturn(returnType(Boolean.class)))
                 .check(allClasses);
     }
 
@@ -107,6 +120,11 @@ public class ForbiddenReturnTypesForClassesTest {
         @Nonnull
         public static MethodCondition notReturn(final DescribedPredicate<? super JavaMethod> predicate) {
             return new MethodCondition(ArchPredicates.be(Objects.requireNonNull(predicate)));
+        }
+
+        @Nonnull
+        public static MethodCondition callMethodsWith(final DescribedPredicate<? super JavaMethod> predicate) {
+            return new MethodCondition((ArchPredicates.be(Objects.requireNonNull(predicate))));
         }
 
         public MethodCondition(@Nonnull final DescribedPredicate<? super JavaMethod> predicate) {
